@@ -6,7 +6,8 @@ const {
   getDoctorById
 } = require('../controllers/doctor.controller');
 
-router.get('/', protect, getAllDoctors);
+// Allow public access to doctor list
+router.get('/', getAllDoctors);
 router.get('/:id', protect, getDoctorById);
 
 module.exports = router;

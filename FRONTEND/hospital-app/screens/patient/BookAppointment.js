@@ -29,24 +29,39 @@ export default function BookAppointment({ navigation }) {
       Alert.alert('Validation', 'Please select doctor, date, and time.');
       return;
     }
+    // Backend expects date as YYYY-MM-DD and time as HH:MM
+    // Validate date and time formats
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      Alert.alert('Validation', 'Date must be in YYYY-MM-DD format.');
+      return;
+    }
+    if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(time)) {
+      Alert.alert('Validation', 'Time must be in HH:MM (24hr) format.');
+      return;
+    }
     setBooking(true);
     try {
-      const res = await API.post('/appointments', {
+      await API.post('/appointments', {
         doctorId: selectedDoctor._id,
         date,
         time,
         reason,
       });
-      console.log('Appointment booked:', res.data);
       Alert.alert('Success', 'Appointment booked successfully!');
       setSelectedDoctor(null);
       setDate('');
       setTime('');
       setReason('');
-      navigation.navigate('MyAppointments');
+      // Navigate to MyAppointments and trigger refresh
+      navigation.navigate('MyAppointments', { refresh: Date.now() });
     } catch (err) {
-      console.log('Booking error:', err.response?.data || err.message);
-      Alert.alert('Error', err.response?.data?.message || 'Booking failed');
+      let msg = 'Booking failed';
+      if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.message) {
+        msg = err.message;
+      }
+      Alert.alert('Error', msg);
     }
     setBooking(false);
   };
@@ -84,7 +99,13 @@ export default function BookAppointment({ navigation }) {
               </TouchableOpacity>
             );
           }}
-          ListEmptyComponent={<Text>No doctors found.</Text>}
+          ListEmptyComponent={
+            <Text>
+              {doctors.length === 0
+                ? 'No doctors available. Please contact admin.'
+                : ''}
+            </Text>
+          }
         />
       )}
 

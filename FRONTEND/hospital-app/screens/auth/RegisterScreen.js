@@ -8,7 +8,8 @@ export default function RegisterScreen({ navigation }) {
     name: '',
     email: '',
     password: '',
-    role: 'patient', // default role
+    role: 'patient',
+    specialization: '', // add this
   });
 
   const handleChange = (field, value) => {
@@ -17,7 +18,9 @@ export default function RegisterScreen({ navigation }) {
 
   const handleRegister = async () => {
     try {
-      await API.post('/auth/register', form);
+      const payload = { ...form };
+      if (form.role !== 'doctor') delete payload.specialization;
+      await API.post('/auth/register', payload);
       Alert.alert('Success', 'Registration complete. You can now log in.');
       navigation.navigate('Login');
     } catch (err) {
@@ -62,6 +65,16 @@ export default function RegisterScreen({ navigation }) {
           <Picker.Item label="Admin" value="admin" />
         </Picker>
       </View>
+
+      {/* Show specialization input if doctor */}
+      {form.role === 'doctor' && (
+        <TextInput
+          placeholder="Specialization"
+          value={form.specialization}
+          onChangeText={(v) => handleChange('specialization', v)}
+          style={styles.input}
+        />
+      )}
 
       <Button title="Register" onPress={handleRegister} />
     </View>

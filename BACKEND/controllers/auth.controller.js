@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Doctor = require('../models/Doctor');
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -14,7 +15,7 @@ const generateToken = (user) => {
 // @route  POST /api/auth/register
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, specialization, licenseNumber, qualifications, availableDays, availableTimeSlots, bio } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'All fields are required' });
@@ -33,6 +34,19 @@ exports.registerUser = async (req, res) => {
       password: hashedPassword,
       role
     });
+
+    // If role is doctor, also create Doctor document
+    if (role === 'doctor') {
+      await Doctor.create({
+        userId: user._id,
+        specialization: specialization || '',
+        licenseNumber: licenseNumber || '',
+        qualifications: qualifications || [],
+        availableDays: availableDays || [],
+        availableTimeSlots: availableTimeSlots || [],
+        bio: bio || ''
+      });
+    }
 
     const token = generateToken(user);
 
