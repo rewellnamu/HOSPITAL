@@ -13,4 +13,13 @@ API.interceptors.request.use(async (config) => {
   return config;
 });
 
+// Helper to set/remove token after login/logout
+export const setAuthToken = async (token) => {
+  if (token) {
+    await AsyncStorage.setItem('token', token);
+  } else {
+    await AsyncStorage.removeItem('token');
+  }
+};
+
 export default API;

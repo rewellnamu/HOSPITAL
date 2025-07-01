@@ -31,6 +31,15 @@ export default function Prescriptions() {
         renderItem={({ item }) => (
           <View style={{ padding: 10, backgroundColor: '#f1f1f1', marginBottom: 8, borderRadius: 6 }}>
             <Text>Date: {item.prescribedAt?.slice(0,10)}</Text>
+            <Text>
+              Doctor: {
+                item.doctorId?.userId?.name // doctorId populated with userId populated with name
+                || item.doctorId?.userId    // doctorId populated with userId as string
+                || item.doctorId?.name      // fallback if doctorId has name directly
+                || (typeof item.doctorId === 'string' ? item.doctorId : '')
+                || 'Unknown'
+              }
+            </Text>
             <Text>Medications: {item.medications.map(m => m.name).join(', ')}</Text>
             <Text>Notes: {item.notes}</Text>
           </View>

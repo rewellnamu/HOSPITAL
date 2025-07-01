@@ -32,7 +32,9 @@ export default function DoctorPatientRecordsScreen() {
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.bold}>{item.userId?.name || item.userId}</Text>
-            <Text>Gender: {item.gender}</Text>
+            <Text>Email: {item.userId?.email}</Text>
+            <Text>Phone: {item.userId?.phone}</Text>
+            <Text>Gender: {item.gender || item.userId?.gender}</Text>
             <Text>DOB: {item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString() : ''}</Text>
             <Text>Blood Type: {item.bloodType}</Text>
             <Text>Allergies: {item.allergies?.join(', ')}</Text>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TextInput, Button, Alert, StyleSheet, Modal } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import API from '../../services/api';
 
 export default function BookAppointment({ navigation }) {
@@ -10,6 +11,11 @@ export default function BookAppointment({ navigation }) {
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
   const [booking, setBooking] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [lastAppointment, setLastAppointment] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('mpesa');
+  const [amount, setAmount] = useState('');
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -41,7 +47,7 @@ export default function BookAppointment({ navigation }) {
     }
     setBooking(true);
     try {
-      await API.post('/appointments', {
+      const res = await API.post('/appointments', {
         doctorId: selectedDoctor._id,
         date,
         time,
@@ -52,8 +58,8 @@ export default function BookAppointment({ navigation }) {
       setDate('');
       setTime('');
       setReason('');
-      // Navigate to MyAppointments and trigger refresh
-      navigation.navigate('MyAppointments', { refresh: Date.now() });
+      setLastAppointment(res.data); // Save appointment for payment
+      setShowPaymentModal(true); // Show payment modal
     } catch (err) {
       let msg = 'Booking failed';
       if (err.response?.data?.message) {
@@ -64,6 +70,33 @@ export default function BookAppointment({ navigation }) {
       Alert.alert('Error', msg);
     }
     setBooking(false);
+  };
+
+  const handlePayment = async () => {
+    if (!amount || isNaN(Number(amount))) {
+      Alert.alert('Validation', 'Enter a valid amount.');
+      return;
+    }
+    setPaying(true);
+    try {
+      await API.post('/payments', {
+        appointmentId: lastAppointment._id,
+        amount,
+        paymentMethod,
+      });
+      setShowPaymentModal(false);
+      setAmount('');
+      setPaymentMethod('mpesa');
+      Alert.alert('Payment Success', 'Payment completed successfully!', [
+        {
+          text: 'OK',
+          onPress: () => navigation.replace('Payments'),
+        },
+      ]);
+    } catch (err) {
+      Alert.alert('Payment Error', err.response?.data?.message || 'Payment failed');
+    }
+    setPaying(false);
   };
 
   return (
@@ -138,6 +171,40 @@ export default function BookAppointment({ navigation }) {
         onPress={handleBook}
         disabled={booking}
       />
+      {/* Payment Modal */}
+      <Modal visible={showPaymentModal} transparent animationType="slide">
+        <View style={{
+          flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)'
+        }}>
+          <View style={{ backgroundColor: '#fff', padding: 24, borderRadius: 10, width: '90%' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Make Payment</Text>
+            <Text>Amount</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter amount"
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+            />
+            <Text>Payment Method</Text>
+            <View style={styles.input}>
+              <Picker
+                selectedValue={paymentMethod}
+                onValueChange={setPaymentMethod}
+              >
+                <Picker.Item label="Mpesa" value="mpesa" />
+                <Picker.Item label="Card" value="card" />
+                <Picker.Item label="Cash" value="cash" />
+                <Picker.Item label="Insurance" value="insurance" />
+              </Picker>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+              <Button title="Cancel" color="#888" onPress={() => setShowPaymentModal(false)} />
+              <Button title={paying ? "Paying..." : "Pay Now"} onPress={handlePayment} disabled={paying} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

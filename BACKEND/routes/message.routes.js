@@ -3,10 +3,12 @@ const router = express.Router();
 const protect = require('../middleware/authMiddleware');
 const {
   sendMessage,
-  getMessages
+  getMessages,
+  getAllMessagesForUser
 } = require('../controllers/message.controller');
 
 router.post('/', protect, sendMessage);
+router.get('/user', protect, getAllMessagesForUser);
 router.get('/:receiverId', protect, getMessages);
 
 module.exports = router;

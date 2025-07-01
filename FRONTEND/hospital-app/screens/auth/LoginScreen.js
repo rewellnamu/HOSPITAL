@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, Alert } from 'react-native';
-import API from '../../services/api';
+import API, { setAuthToken } from '../../services/api';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -18,6 +18,9 @@ export default function LoginScreen({ navigation }) {
         email,
         password,
       });
+
+      // Save token for future requests
+      await setAuthToken(res.data.token);
 
       console.log('✅ Login Success:', res.data);
       Alert.alert('Success', `Welcome ${res.data.name}`);

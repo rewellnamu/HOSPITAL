@@ -17,6 +17,14 @@ import MyAppointments from '../screens/patient/MyAppointments';
 import Prescriptions from '../screens/patient/Prescriptions';
 import LabResults from '../screens/patient/LabResults';
 import Payments from '../screens/patient/Payments';
+import ManageUsers from '../screens/admin/ManageUsers';
+import AddUser from '../screens/admin/AddUser';
+import HospitalConfig from '../screens/admin/HospitalConfig';
+import Departments from '../screens/admin/Departments';
+import AllAppointments from '../screens/admin/AllAppointments';
+import RevenueReports from '../screens/admin/RevenueReports';
+import UserAnalytics from '../screens/admin/UserAnalytics';
+import AppointmentAnalytics from '../screens/admin/AppointmentAnalytics';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,10 +42,22 @@ const AppNavigator = () => {
         <Stack.Screen name="DoctorPatientRecordsScreen" component={DoctorPatientRecordsScreen} />
         <Stack.Screen name="DoctorMessagesScreen" component={DoctorMessagesScreen} />
         <Stack.Screen name="BookAppointment" component={BookAppointment} />
-        <Stack.Screen name="MyAppointments" component={MyAppointments} />
+        <Stack.Screen 
+          name="MyAppointments" 
+          component={MyAppointments} 
+          options={{ headerShown: true }} // Ensure header is visible
+        />
         <Stack.Screen name="Prescriptions" component={Prescriptions} />
         <Stack.Screen name="LabResults" component={LabResults} />
         <Stack.Screen name="Payments" component={Payments} />
+        <Stack.Screen name="ManageUsers" component={ManageUsers} />
+        <Stack.Screen name="AddUser" component={AddUser} />
+        <Stack.Screen name="HospitalConfig" component={HospitalConfig} />
+        <Stack.Screen name="Departments" component={Departments} />
+        <Stack.Screen name="AllAppointments" component={AllAppointments} />
+        <Stack.Screen name="RevenueReports" component={RevenueReports} />
+        <Stack.Screen name="UserAnalytics" component={UserAnalytics} />
+        <Stack.Screen name="AppointmentAnalytics" component={AppointmentAnalytics} />
       </Stack.Navigator>
     </NavigationContainer>
   );

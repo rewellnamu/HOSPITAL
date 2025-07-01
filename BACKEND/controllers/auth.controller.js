@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Doctor = require('../models/Doctor');
+const Patient = require('../models/Patient'); // Add this
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -45,6 +46,14 @@ exports.registerUser = async (req, res) => {
         availableDays: availableDays || [],
         availableTimeSlots: availableTimeSlots || [],
         bio: bio || ''
+      });
+    }
+
+    // If role is patient, also create Patient document
+    if (role === 'patient') {
+      await Patient.create({
+        userId: user._id
+        // You can add more fields if needed
       });
     }
 
